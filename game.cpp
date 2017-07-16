@@ -6,59 +6,32 @@
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
+#include "utils/Utils.h"
 
-
-////////////////////////////////////////////////////////////
-/// Entry point of application
-///
-/// \return Application exit code
-///
-////////////////////////////////////////////////////////////
 int main()
 {
+
     std::srand(static_cast<unsigned int>(std::time(NULL)));
 
     // Define some constants
     const float pi = 3.14159f;
-    const int gameWidth = 800;
+    const int gameWidth = 400;
     const int gameHeight = 600;
-    sf::Vector2f paddleSize(25, 100);
     float ballRadius = 10.f;
 
     // Create the window of the application
-    sf::RenderWindow window(sf::VideoMode(gameWidth, gameHeight, 32), "SFML Pong",
+    sf::RenderWindow window(sf::VideoMode(gameWidth, gameHeight, 32), "4IBD cpp",
                             sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
-    // Load the sounds used in the game
-    sf::SoundBuffer ballSoundBuffer;
-    if (!ballSoundBuffer.loadFromFile("resources/ball.wav"))
-        return EXIT_FAILURE;
-    sf::Sound ballSound(ballSoundBuffer);
 
-    // Create the left paddle
-    sf::RectangleShape leftPaddle;
-    leftPaddle.setSize(paddleSize - sf::Vector2f(3, 3));
-    leftPaddle.setOutlineThickness(3);
-    leftPaddle.setOutlineColor(sf::Color::Black);
-    leftPaddle.setFillColor(sf::Color(100, 100, 200));
-    leftPaddle.setOrigin(paddleSize / 2.f);
-
-    // Create the right paddle
-    sf::RectangleShape rightPaddle;
-    rightPaddle.setSize(paddleSize - sf::Vector2f(3, 3));
-    rightPaddle.setOutlineThickness(3);
-    rightPaddle.setOutlineColor(sf::Color::Black);
-    rightPaddle.setFillColor(sf::Color(200, 100, 100));
-    rightPaddle.setOrigin(paddleSize / 2.f);
-
-    // Create the ball
-    sf::CircleShape ball;
-    ball.setRadius(ballRadius - 3);
-    ball.setOutlineThickness(3);
-    ball.setOutlineColor(sf::Color::Black);
-    ball.setFillColor(sf::Color::White);
-    ball.setOrigin(ballRadius / 2, ballRadius / 2);
+    // Create the player
+    sf::CircleShape player;
+    player.setRadius(ballRadius - 3);
+    player.setOutlineThickness(3);
+    player.setOutlineColor(sf::Color::Black);
+    player.setFillColor(sf::Color::Red);
+    player.setOrigin(ballRadius / 2, ballRadius / 2);
 
     // Load the text font
     sf::Font font;
@@ -68,21 +41,23 @@ int main()
     // Initialize the pause message
     sf::Text pauseMessage;
     pauseMessage.setFont(font);
-    pauseMessage.setCharacterSize(40);
-    pauseMessage.setPosition(170.f, 150.f);
+    pauseMessage.setCharacterSize(20);
+    pauseMessage.setPosition(80.f, 150.f);
     pauseMessage.setColor(sf::Color::White);
-    pauseMessage.setString("Welcome to SFML pong!\nPress space to start the game");
+    pauseMessage.setString("Welcome to 4IBD game!\nPress space to start the game");
 
-    // Define the paddles properties
+    // Define the player properties
     sf::Clock AITimer;
     const sf::Time AITime   = sf::seconds(0.1f);
-    const float paddleSpeed = 400.f;
-    float rightPaddleSpeed  = 0.f;
-    const float ballSpeed   = 400.f;
-    float ballAngle         = 0.f; // to be changed later
-
+    const float playerSpeed = 600.f;
+    //initialiser la classe utils
+    Utils utils(gameWidth,gameHeight);
     sf::Clock clock;
+    sf::Clock clockPlatforms;
     bool isPlaying = false;
+    Platform platform;
+    int precTime=0,platforms_apparition_speed=2;
+    float platformSpeed=-100.f;
     while (window.isOpen())
     {
         // Handle events
@@ -105,19 +80,11 @@ int main()
                     // (re)start the game
                     isPlaying = true;
                     clock.restart();
+                    clockPlatforms.restart();
+                    player.setPosition(gameWidth / 2, gameHeight / 5);
+                    utils.getPlatforms().clear();
 
-                    // Reset the position of the paddles and ball
-                    leftPaddle.setPosition(10 + paddleSize.x / 2, gameHeight / 2);
-                    rightPaddle.setPosition(gameWidth - 10 - paddleSize.x / 2, gameHeight / 2);
-                    ball.setPosition(gameWidth / 2, gameHeight / 2);
 
-                    // Reset the ball angle
-                    do
-                    {
-                        // Make sure the ball initial angle is not too much vertical
-                        ballAngle = (std::rand() % 360) * 2 * pi / 360;
-                    }
-                    while (std::abs(std::cos(ballAngle)) < 0.7f);
                 }
             }
         }
@@ -125,107 +92,66 @@ int main()
         if (isPlaying)
         {
             float deltaTime = clock.restart().asSeconds();
-
+            sf::Time elapsed=clockPlatforms.getElapsedTime();
+            if(elapsed.asSeconds()>(precTime+platforms_apparition_speed)){
+                precTime+=2;
+                utils.generatePlatform();
+            }
             // Move the player's paddle
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) &&
-                (leftPaddle.getPosition().y - paddleSize.y / 2 > 5.f))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) &&
+                (player.getPosition().x - ballRadius> 0.f))
             {
-                leftPaddle.move(0.f, -paddleSpeed * deltaTime);
+                player.move(-playerSpeed * deltaTime,0.f);
             }
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) &&
-                (leftPaddle.getPosition().y + paddleSize.y / 2 < gameHeight - 5.f))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
+                (player.getPosition().x + ballRadius < gameWidth))
             {
-                leftPaddle.move(0.f, paddleSpeed * deltaTime);
-            }
-
-            // Move the computer's paddle
-            if (((rightPaddleSpeed < 0.f) && (rightPaddle.getPosition().y - paddleSize.y / 2 > 5.f)) ||
-                ((rightPaddleSpeed > 0.f) && (rightPaddle.getPosition().y + paddleSize.y / 2 < gameHeight - 5.f)))
-            {
-                rightPaddle.move(0.f, rightPaddleSpeed * deltaTime);
+                player.move(playerSpeed * deltaTime,0.f);
             }
 
-            // Update the computer's paddle direction according to the ball position
-            if (AITimer.getElapsedTime() > AITime)
-            {
-                AITimer.restart();
-                if (ball.getPosition().y + ballRadius > rightPaddle.getPosition().y + paddleSize.y / 2)
-                    rightPaddleSpeed = paddleSpeed;
-                else if (ball.getPosition().y - ballRadius < rightPaddle.getPosition().y - paddleSize.y / 2)
-                    rightPaddleSpeed = -paddleSpeed;
-                else
-                    rightPaddleSpeed = 0.f;
-            }
-
-            // Move the ball
-            float factor = ballSpeed * deltaTime;
-            ball.move(std::cos(ballAngle) * factor, std::sin(ballAngle) * factor);
-
-            // Check collisions between the ball and the screen
-            if (ball.getPosition().x - ballRadius < 0.f)
+            // Check collisions between the player and the screen
+            if (player.getPosition().y - ballRadius < 0.f)
             {
                 isPlaying = false;
                 pauseMessage.setString("You lost!\nPress space to restart or\nescape to exit");
             }
-            if (ball.getPosition().x + ballRadius > gameWidth)
+            if (player.getPosition().y + ballRadius > gameHeight)
             {
                 isPlaying = false;
-                pauseMessage.setString("You won!\nPress space to restart or\nescape to exit");
+                pauseMessage.setString("You lost!\nPress space to restart or\nescape to exit");
             }
-            if (ball.getPosition().y - ballRadius < 0.f)
-            {
-                ballSound.play();
-                ballAngle = -ballAngle;
-                ball.setPosition(ball.getPosition().x, ballRadius + 0.1f);
-            }
-            if (ball.getPosition().y + ballRadius > gameHeight)
-            {
-                ballSound.play();
-                ballAngle = -ballAngle;
-                ball.setPosition(ball.getPosition().x, gameHeight - ballRadius - 0.1f);
-            }
+            //check collisons between the player and the platforms
+            for(int i=0;i<utils.getPlatforms().size();i++) {
+                Platform pla=utils.getPlatforms()[i];
+                sf::RectangleShape pl=utils.getPlatforms()[i].getPlatform();
+                if (player.getPosition().x < pl.getPosition().x + pla.getWidth() / 2 &&
+                        player.getPosition().x > pl.getPosition().x- pla.getWidth() / 2&&
+                        player.getPosition().y + ballRadius >= pl.getPosition().y - pla.getHeight() / 2 &&
+                        player.getPosition().y + ballRadius <= pl.getPosition().y + pla.getHeight() / 2) {
+                    float ajust=player.getPosition().y + ballRadius-pl.getPosition().y - pla.getHeight() / 2;
+                    utils.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
+                    player.move(0.f, platformSpeed*deltaTime+ajust);
+                }else{
+                    utils.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
+                    player.move(0.f, -platformSpeed*deltaTime);
+                }
 
-            // Check the collisions between the ball and the paddles
-            // Left Paddle
-            if (ball.getPosition().x - ballRadius < leftPaddle.getPosition().x + paddleSize.x / 2 &&
-                ball.getPosition().x - ballRadius > leftPaddle.getPosition().x &&
-                ball.getPosition().y + ballRadius >= leftPaddle.getPosition().y - paddleSize.y / 2 &&
-                ball.getPosition().y - ballRadius <= leftPaddle.getPosition().y + paddleSize.y / 2)
-            {
-                if (ball.getPosition().y > leftPaddle.getPosition().y)
-                    ballAngle = pi - ballAngle + (std::rand() % 20) * pi / 180;
-                else
-                    ballAngle = pi - ballAngle - (std::rand() % 20) * pi / 180;
-
-                ballSound.play();
-                ball.setPosition(leftPaddle.getPosition().x + ballRadius + paddleSize.x / 2 + 0.1f, ball.getPosition().y);
-            }
-
-            // Right Paddle
-            if (ball.getPosition().x + ballRadius > rightPaddle.getPosition().x - paddleSize.x / 2 &&
-                ball.getPosition().x + ballRadius < rightPaddle.getPosition().x &&
-                ball.getPosition().y + ballRadius >= rightPaddle.getPosition().y - paddleSize.y / 2 &&
-                ball.getPosition().y - ballRadius <= rightPaddle.getPosition().y + paddleSize.y / 2)
-            {
-                if (ball.getPosition().y > rightPaddle.getPosition().y)
-                    ballAngle = pi - ballAngle + (std::rand() % 20) * pi / 180;
-                else
-                    ballAngle = pi - ballAngle - (std::rand() % 20) * pi / 180;
-
-                ballSound.play();
-                ball.setPosition(rightPaddle.getPosition().x - ballRadius - paddleSize.x / 2 - 0.1f, ball.getPosition().y);
             }
         }
 
         // Clear the window
-        window.clear(sf::Color(50, 200, 50));
+        window.clear(sf::Color(128, 128, 128));
 
         if (isPlaying)
         {
-            // Draw the paddles and the ball
-            window.draw(leftPaddle);
-            window.draw(rightPaddle);
-            window.draw(ball);
+            // Draw the paddles and the player
+            window.draw(player);
+            for(int i=0;i<utils.getPlatforms().size();i++){
+                if(utils.getPlatforms()[i].getPlatform().getPosition().y<0)
+                    utils.getPlatforms().erase(utils.getPlatforms().begin()+i);
+                window.draw(utils.getPlatforms()[i].getPlatform());
+            }
+
         }
         else
         {

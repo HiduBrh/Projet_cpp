@@ -3,7 +3,7 @@ project(Projet_cpp)
 
 set(CMAKE_CXX_STANDARD 11)
 #include_directories("/home/idu/Documents/ESGI/cpp/SFML-2.4.2/include")
-set(SOURCE_FILES game.cpp)
+set(SOURCE_FILES game.cpp platforms/Platform.cpp platforms/Platform.h utils/Utils.cpp utils/Utils.h)
 add_executable(game ${SOURCE_FILES})
 #set(SRCROOT ${PROJECT_SOURCE_DIR}/examples/pong)
 
