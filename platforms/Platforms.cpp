@@ -2,12 +2,12 @@
 // Created by idu on 16/07/17.
 //
 
-#include "Utils.h"
-#include "../platforms/Platform.h"
+#include "Platforms.h"
+#include "Platform.h"
 
-Utils::Utils() {}
+Platforms::Platforms() {}
 
-Platform Utils::generatePlatform(){
+Platform Platforms::generatePlatform(){
     int platformHeight=10;
     int platformWidth=std::rand()%90+30;
     int positionX=std::rand()%(gamewidth-(platformWidth/2))+platformWidth/2;
@@ -25,35 +25,35 @@ Platform Utils::generatePlatform(){
     platforms.push_back(plat);
     return plat;
 }
-Utils::Utils(Utils const & utils){
+Platforms::Platforms(Platforms const & utils){
     gameHeight=utils.gameHeight;
     gamewidth=utils.gamewidth;
 }
 
 
-Utils::Utils(int gamewidth, int gameHeight) : gamewidth(gamewidth), gameHeight(gameHeight) {}
+Platforms::Platforms(int gamewidth, int gameHeight) : gamewidth(gamewidth), gameHeight(gameHeight) {}
 
-int Utils::getGamewidth() const {
+int Platforms::getGamewidth() const {
     return gamewidth;
 }
 
-void Utils::setGamewidth(int gamewidth) {
-    Utils::gamewidth = gamewidth;
+void Platforms::setGamewidth(int gamewidth) {
+    Platforms::gamewidth = gamewidth;
 }
 
-int Utils::getGameHeight() const {
+int Platforms::getGameHeight() const {
     return gameHeight;
 }
 
-void Utils::setGameHeight(int gameHeight) {
-    Utils::gameHeight = gameHeight;
+void Platforms::setGameHeight(int gameHeight) {
+    Platforms::gameHeight = gameHeight;
 }
 
- std::vector<Platform> &Utils::getPlatforms() {
+ std::vector<Platform> &Platforms::getPlatforms() {
     return platforms;
 }
 
-void Utils::setPlatforms(const std::vector<Platform> &platforms) {
-    Utils::platforms = platforms;
+void Platforms::setPlatforms(const std::vector<Platform> &platforms) {
+    Platforms::platforms = platforms;
 }
 

@@ -7,14 +7,14 @@
 
 
 #include <array>
-#include "../platforms/Platform.h"
+#include "Platform.h"
 
-class Utils {
+class Platforms {
 public:
-    Utils();
+    Platforms();
 
-    Utils(int gamewidth, int gameHeight);
-    Utils(Utils const &);
+    Platforms(int gamewidth, int gameHeight);
+    Platforms(Platforms const &);
     int getGamewidth() const;
 
     void setGamewidth(int gamewidth);

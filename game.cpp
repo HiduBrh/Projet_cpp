@@ -6,7 +6,9 @@
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
-#include "utils/Utils.h"
+#include "platforms/Platforms.h"
+#include "player/Player.h"
+#include "platforms/Platform.h"
 
 int main()
 {
@@ -26,12 +28,7 @@ int main()
 
 
     // Create the player
-    sf::CircleShape player;
-    player.setRadius(ballRadius - 3);
-    player.setOutlineThickness(3);
-    player.setOutlineColor(sf::Color::Black);
-    player.setFillColor(sf::Color::Red);
-    player.setOrigin(ballRadius / 2, ballRadius / 2);
+    Player player(ballRadius);
 
     // Load the text font
     sf::Font font;
@@ -51,7 +48,7 @@ int main()
     const sf::Time AITime   = sf::seconds(0.1f);
     const float playerSpeed = 600.f;
     //initialiser la classe utils
-    Utils utils(gameWidth,gameHeight);
+    Platforms utils(gameWidth,gameHeight);
     sf::Clock clock;
     sf::Clock clockPlatforms;
     bool isPlaying = false;
@@ -81,10 +78,8 @@ int main()
                     isPlaying = true;
                     clock.restart();
                     clockPlatforms.restart();
-                    player.setPosition(gameWidth / 2, gameHeight / 5);
+                    player.getBall().setPosition(gameWidth / 2, gameHeight / 5);
                     utils.getPlatforms().clear();
-
-
                 }
             }
         }
@@ -99,41 +94,41 @@ int main()
             }
             // Move the player's paddle
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) &&
-                (player.getPosition().x - ballRadius> 0.f))
+                (player.getBall().getPosition().x - ballRadius> 0.f))
             {
-                player.move(-playerSpeed * deltaTime,0.f);
+                player.getBall().move(-playerSpeed * deltaTime,0.f);
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) &&
-                (player.getPosition().x + ballRadius < gameWidth))
+                (player.getBall().getPosition().x + ballRadius < gameWidth))
             {
-                player.move(playerSpeed * deltaTime,0.f);
+                player.getBall().move(playerSpeed * deltaTime,0.f);
             }
 
             // Check collisions between the player and the screen
-            if (player.getPosition().y - ballRadius < 0.f)
+            if (player.getBall().getPosition().y - ballRadius < 0.f)
             {
                 isPlaying = false;
                 pauseMessage.setString("You lost!\nPress space to restart or\nescape to exit");
             }
-            if (player.getPosition().y + ballRadius > gameHeight)
+            if (player.getBall().getPosition().y + ballRadius > gameHeight)
             {
                 isPlaying = false;
                 pauseMessage.setString("You lost!\nPress space to restart or\nescape to exit");
             }
-            //check collisons between the player and the platforms
+            //check collisons between the player and the Platforms
             for(int i=0;i<utils.getPlatforms().size();i++) {
                 Platform pla=utils.getPlatforms()[i];
                 sf::RectangleShape pl=utils.getPlatforms()[i].getPlatform();
-                if (player.getPosition().x < pl.getPosition().x + pla.getWidth() / 2 &&
-                        player.getPosition().x > pl.getPosition().x- pla.getWidth() / 2&&
-                        player.getPosition().y + ballRadius >= pl.getPosition().y - pla.getHeight() / 2 &&
-                        player.getPosition().y + ballRadius <= pl.getPosition().y + pla.getHeight() / 2) {
-                    float ajust=player.getPosition().y + ballRadius-pl.getPosition().y - pla.getHeight() / 2;
+                if (player.getBall().getPosition().x < pl.getPosition().x + pla.getWidth() / 2 &&
+                        player.getBall().getPosition().x > pl.getPosition().x- pla.getWidth() / 2&&
+                        player.getBall().getPosition().y + ballRadius >= pl.getPosition().y - pla.getHeight() / 2 &&
+                        player.getBall().getPosition().y + ballRadius <= pl.getPosition().y + pla.getHeight() / 2) {
+                    float ajust=player.getBall().getPosition().y + ballRadius-pl.getPosition().y - pla.getHeight() / 2;
                     utils.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
-                    player.move(0.f, platformSpeed*deltaTime+ajust);
+                    player.getBall().move(0.f, platformSpeed*deltaTime+ajust);
                 }else{
                     utils.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
-                    player.move(0.f, -platformSpeed*deltaTime);
+                    player.getBall().move(0.f, -platformSpeed*deltaTime);
                 }
 
             }
@@ -145,7 +140,7 @@ int main()
         if (isPlaying)
         {
             // Draw the paddles and the player
-            window.draw(player);
+            window.draw(player.getBall());
             for(int i=0;i<utils.getPlatforms().size();i++){
                 if(utils.getPlatforms()[i].getPlatform().getPosition().y<0)
                     utils.getPlatforms().erase(utils.getPlatforms().begin()+i);
