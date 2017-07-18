@@ -14,14 +14,19 @@ Platform Platforms::generatePlatform(){
     int positionY=gameHeight-(platformHeight/2);
     int randomColor=std::rand()%100;
     sf::Color color;
-    if(randomColor<70)
-        color=sf::Color::Green;
-    else
-    if(randomColor>=70 && randomColor<90)
-        color=sf::Color::Blue;
-    else
-        color=sf::Color::Red;
-    Platform plat=Platform(platformWidth,platformHeight,color,positionX,positionY);
+    int type=0;
+    if(randomColor<70) {
+        color = sf::Color::Green;
+        type=0;
+    }else
+    if(randomColor>=70 && randomColor<90) {
+        color = sf::Color::Blue;
+        type=1;
+    }else {
+        color = sf::Color::Red;
+        type=2;
+    }
+    Platform plat=Platform(platformWidth,platformHeight,color,positionX,positionY,type);
     platforms.push_back(plat);
     return plat;
 }

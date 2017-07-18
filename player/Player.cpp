@@ -15,6 +15,12 @@ Player::Player(float ballRadius) : ballRadius(ballRadius) {
     ball.setOrigin(ballRadius / 2, ballRadius / 2);
 }
 
+Player::Player(Player const & pl){
+    ball=pl.ball;
+    ballRadius=pl.ballRadius;
+}
+
+
 Player::~Player() {
 
 }

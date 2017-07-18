@@ -12,12 +12,16 @@ Platform::~Platform() {
 
 Platform::Platform(Platform const& platf){
     platform=platf.platform;
+    width=platf.width;
+    height=platf.height;
+    type=platf.type;
 }
 
-Platform::Platform(int width,int height,sf::Color color, int positionX,int positionY){
+Platform::Platform(float width,float height,sf::Color color, int positionX,int positionY,int type){
     sf::Vector2f platformSize(width, height);
     this->height=height;
     this->width=width;
+    this->type=type;
     platform.setSize(platformSize - sf::Vector2f(3, 3));
     platform.setOutlineThickness(3);
     platform.setOutlineColor(sf::Color::Black);
@@ -34,10 +38,29 @@ void Platform::move(int dX,int dY){
     return platform;
 }
 
-int Platform::getWidth() const {
+float Platform::getWidth() const {
     return width;
 }
 
-int Platform::getHeight() const {
+float Platform::getHeight() const {
     return height;
+}
+bool Platform::isRedPlatform(){
+    if(type==2)
+        return true;
+    return false;
+}
+bool Platform::isGreenPlatform(){
+    if(type==0)
+        return true;
+    return false;
+}
+bool Platform::isBluePlatform(){
+    if(type==1)
+        return true;
+    return false;
+}
+
+int Platform::getType() const {
+    return type;
 }

@@ -40,6 +40,8 @@ public:
 
     void setBallRadius(float ballRadius);
 
+    bool isIsPlaying() const;
+
     int play();
 private:
     float platformSpeed;
@@ -48,7 +50,7 @@ private:
     float ballRadius ;
     Platforms platforms;
     Player player;
-
+    bool isPlaying;
 };
 
 

@@ -14,6 +14,8 @@ public:
 
     Player(float ballRadius);
 
+    Player(Player const & );
+
     virtual ~Player();
 
     sf::CircleShape &getBall() ;

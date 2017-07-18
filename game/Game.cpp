@@ -3,6 +3,7 @@
 //
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <iostream>
 #include "Game.h"
 
 Game::Game() {}
@@ -12,7 +13,8 @@ Game::Game(float platformSpeed, int gameWidth, int gameHeight, float ballRadius)
                                                                                    gameHeight(gameHeight),
                                                                                    ballRadius(ballRadius),
                                                                                    player(ballRadius),
-                                                                                   platforms(gameWidth,gameHeight){}
+                                                                                   platforms(gameWidth,gameHeight),
+                                                                                   isPlaying(false){}
 Game::~Game() {
 
 }
@@ -83,10 +85,8 @@ int Game::play() {
     Platforms platforms(gameWidth, gameHeight);
     sf::Clock clock;
     sf::Clock clockPlatforms;
-    bool isPlaying = false;
     Platform platform;
-    int precTime = 0, platforms_apparition_speed = 2;
-    bool thread_launched=false;
+    float precTime = 0.f, platforms_apparition_speed = 1.5;
     while (window.isOpen()) {
         // Handle events
         sf::Event event;
@@ -115,7 +115,7 @@ int Game::play() {
             float deltaTime = clock.restart().asSeconds();
             sf::Time elapsed = clockPlatforms.getElapsedTime();
             if (elapsed.asSeconds() > (precTime + platforms_apparition_speed)) {
-                precTime += 2;
+                precTime += platforms_apparition_speed;
                 platforms.generatePlatform();
             }
             // Move the player's paddle
@@ -141,16 +141,21 @@ int Game::play() {
             for(int i=0;i<platforms.getPlatforms().size();i++) {
                 Platform pla=platforms.getPlatforms()[i];
                 sf::RectangleShape pl=platforms.getPlatforms()[i].getPlatform();
-                if (player.getBall().getPosition().x+ballRadius < pl.getPosition().x + pla.getWidth() / 2 &&
-                    player.getBall().getPosition().x+ballRadius > pl.getPosition().x- pla.getWidth() / 2&&
+                if (player.getBall().getPosition().x< pl.getPosition().x + pla.getWidth() / 2 &&
+                    player.getBall().getPosition().x> pl.getPosition().x- pla.getWidth() / 2&&
                     player.getBall().getPosition().y + ballRadius >= pl.getPosition().y - pla.getHeight() / 2 &&
                     player.getBall().getPosition().y + ballRadius <= pl.getPosition().y + pla.getHeight() / 2) {
+
+                    if(platforms.getPlatforms()[i].isRedPlatform()){
+                        isPlaying = false;
+                        pauseMessage.setString("You lost!\nPress space to restart or\nescape to exit");
+                    }
                     float ajust=player.getBall().getPosition().y + ballRadius-pl.getPosition().y - pla.getHeight() / 2;
                     player.getBall().move(0.f, platformSpeed*deltaTime+ajust);
                     platforms.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
                 }else{
-                    platforms.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
                     player.getBall().move(0.f, -platformSpeed*deltaTime);
+                    platforms.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
                 }
 
             }
@@ -176,6 +181,10 @@ int Game::play() {
         // Display things on screen
         window.display();
     }
+}
+
+bool Game::isIsPlaying() const {
+    return isPlaying;
 }
 
 

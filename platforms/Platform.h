@@ -13,19 +13,26 @@ public:
     Platform();
     Platform(Platform const&);
     virtual ~Platform();
-    Platform(int width,int height,sf::Color color, int positionX,int positionY);
+    Platform(float width,float height,sf::Color color, int positionX,int positionY,int type);
     void move(int dX,int dY);
 
     sf::RectangleShape &getPlatform() ;
 
-    int getWidth() const;
+    float getWidth() const;
 
-    int getHeight() const;
+    float getHeight() const;
+
+    int getType() const;
+
+    bool isRedPlatform();
+    bool isGreenPlatform();
+    bool isBluePlatform();
 
 private:
     sf::RectangleShape  platform;
-    int width;
-    int height;
+    float width;
+    float height;
+    int type; //0=green,1=blue,2=red
 };
 
 
