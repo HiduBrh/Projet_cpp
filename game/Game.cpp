@@ -3,7 +3,6 @@
 //
 
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <thread>
 #include "Game.h"
 
 Game::Game() {}
