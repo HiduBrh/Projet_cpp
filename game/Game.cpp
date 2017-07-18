@@ -3,6 +3,7 @@
 //
 
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <sstream>
 #include <iostream>
 #include "Game.h"
 
@@ -14,7 +15,7 @@ Game::Game(float platformSpeed, int gameWidth, int gameHeight, float ballRadius)
                                                                                    ballRadius(ballRadius),
                                                                                    player(ballRadius),
                                                                                    platforms(gameWidth,gameHeight),
-                                                                                   isPlaying(false){}
+                                                                                   isPlaying(false),score(0){}
 Game::~Game() {
 
 }
@@ -76,6 +77,15 @@ int Game::play() {
     pauseMessage.setPosition(80.f, 150.f);
     pauseMessage.setColor(sf::Color::White);
     pauseMessage.setString("Welcome to 4IBD game!\nPress space to start the game");
+
+
+    // Initialize score text
+    sf::Text scoreText;
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(20);
+    scoreText.setPosition(20.f, 20.f);
+    scoreText.setColor(sf::Color::Green);
+    scoreText.setString(std::to_string(score));
 
     // Define the player properties
     sf::Clock AITimer;
@@ -139,26 +149,31 @@ int Game::play() {
             }
             //check collisons between the player and the Platforms
             for(int i=0;i<platforms.getPlatforms().size();i++) {
-                Platform pla=platforms.getPlatforms()[i];
+                Platform *pla=&platforms.getPlatforms()[i];
                 sf::RectangleShape pl=platforms.getPlatforms()[i].getPlatform();
-                if (player.getBall().getPosition().x< pl.getPosition().x + pla.getWidth() / 2 &&
-                    player.getBall().getPosition().x> pl.getPosition().x- pla.getWidth() / 2&&
-                    player.getBall().getPosition().y + ballRadius >= pl.getPosition().y - pla.getHeight() / 2 &&
-                    player.getBall().getPosition().y + ballRadius <= pl.getPosition().y + pla.getHeight() / 2) {
+                if (player.getBall().getPosition().x< pl.getPosition().x + pla->getWidth() / 2 &&
+                    player.getBall().getPosition().x> pl.getPosition().x- pla->getWidth() / 2&&
+                    player.getBall().getPosition().y + ballRadius >= pl.getPosition().y - pla->getHeight() / 2 &&
+                    player.getBall().getPosition().y + ballRadius <= pl.getPosition().y + pla->getHeight() / 2) {
 
                     if(platforms.getPlatforms()[i].isRedPlatform()){
                         isPlaying = false;
                         pauseMessage.setString("You lost!\nPress space to restart or\nescape to exit");
                     }
-                    float ajust=player.getBall().getPosition().y + ballRadius-pl.getPosition().y - pla.getHeight() / 2;
+                    float ajust=player.getBall().getPosition().y + ballRadius-pl.getPosition().y - pla->getHeight() / 2;
                     player.getBall().move(0.f, platformSpeed*deltaTime+ajust);
-                    platforms.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
+                    pla->getPlatform().move(0.f, platformSpeed*deltaTime);
                 }else{
+                    pla->getPlatform().move(0.f, platformSpeed*deltaTime);
                     player.getBall().move(0.f, -platformSpeed*deltaTime);
-                    platforms.getPlatforms()[i].getPlatform().move(0.f, platformSpeed*deltaTime);
                 }
 
             }
+            //update score
+            score=clock.getElapsedTime().asSeconds();
+            scoreText.setString(std::to_string(score));
+//update game speed
+            platformSpeed*=1.0002;
         }
 
         // Clear the window
@@ -167,6 +182,7 @@ int Game::play() {
         if (isPlaying) {
             // Draw the paddles and the player
             window.draw(player.getBall());
+            window.draw(scoreText);
             for (int i = 0; i < platforms.getPlatforms().size(); i++) {
                 if (platforms.getPlatforms()[i].getPlatform().getPosition().y < 0)
                     platforms.getPlatforms().erase(platforms.getPlatforms().begin() + i);
@@ -185,6 +201,10 @@ int Game::play() {
 
 bool Game::isIsPlaying() const {
     return isPlaying;
+}
+
+int Game::getScore() const {
+    return score;
 }
 
 

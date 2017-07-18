@@ -42,6 +42,8 @@ public:
 
     bool isIsPlaying() const;
 
+    int getScore() const;
+
     int play();
 private:
     float platformSpeed;
@@ -51,6 +53,7 @@ private:
     Platforms platforms;
     Player player;
     bool isPlaying;
+    int score;
 };
 
 
