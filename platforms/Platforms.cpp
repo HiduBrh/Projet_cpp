@@ -8,7 +8,7 @@
 Platforms::Platforms() {}
 
 Platform Platforms::generatePlatform(){
-    int platformHeight=10;
+    int platformHeight=20;
     int platformWidth=std::rand()%90+30;
     int positionX=std::rand()%(gamewidth-(platformWidth/2))+platformWidth/2;
     int positionY=gameHeight-(platformHeight/2);

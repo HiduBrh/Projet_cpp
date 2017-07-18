@@ -172,7 +172,7 @@ int Game::play() {
             //update score
             score=clock.getElapsedTime().asSeconds();
             scoreText.setString(std::to_string(score));
-//update game speed
+            //update game speed
             platformSpeed*=1.0002;
         }
 
